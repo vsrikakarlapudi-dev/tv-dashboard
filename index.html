@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World Clock &amp; Holidays</title>
+<style>
+  :root{--text:#f3f5fa;--muted:rgba(243,245,250,.72);--dim:rgba(243,245,250,.5);
+    --glass:rgba(10,14,24,.48);--line:rgba(255,255,255,.14);
+    --us:#5b95ff;--in:#ffa24a;--uk:#ff6a8f;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:#05070d;color:var(--text);overflow:hidden;
+    font-family:Roboto,"Segoe UI","Helvetica Neue",Arial,sans-serif;}
+  .bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;
+    transition:opacity 2.5s ease;will-change:opacity,transform}
+  .bg.on{opacity:1;animation:kb 26s linear forwards}
+  @keyframes kb{from{transform:scale(1.0)}to{transform:scale(1.025)}}
+  .bg.fallback{background:radial-gradient(1200px 800px at 20% 30%,#1d3b6b,transparent 60%),radial-gradient(1000px 700px at 80% 80%,#5a2d1a,transparent 60%),#0a0f1c}
+  .shade{position:absolute;inset:0;z-index:50;pointer-events:none;
+    background:linear-gradient(to left,rgba(0,0,0,.55) 0%,rgba(0,0,0,.25) 26%,rgba(0,0,0,0) 45%),
+               linear-gradient(to top,rgba(0,0,0,.6) 0%,rgba(0,0,0,.15) 28%,rgba(0,0,0,0) 45%);}
+  #stage{position:absolute;inset:0;z-index:60;transition:transform 2s ease}
+  .glass{background:var(--glass);border:1px solid var(--line);border-radius:1.1vw;
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 .6vw 2vw rgba(0,0,0,.25)}
+
+  /* clocks bottom-left */
+  .clocks{position:absolute;left:2.6vw;bottom:2.6vw;display:flex;gap:1vw}
+  .clock{padding:.9vw 1.3vw 1vw;min-width:14.5vw;position:relative;overflow:hidden}
+  .clock::before{content:"";position:absolute;left:0;top:0;bottom:0;width:.28vw;background:var(--accent)}
+  .city{display:flex;align-items:center;gap:.5vw;font-size:.95vw;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .city .dn{margin-left:auto;font-size:1vw;letter-spacing:0}
+  .time{font-size:3.4vw;font-weight:300;line-height:1.05;font-variant-numeric:tabular-nums;letter-spacing:-.02em;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+  .time .ap{font-size:1.1vw;font-weight:400;color:var(--muted);margin-left:.4vw;letter-spacing:.05em}
+  .date{font-size:.85vw;color:var(--muted);margin-top:.15vw;white-space:nowrap}
+  .date b{color:var(--text);font-weight:500}
+  .date .hol{color:var(--accent);font-weight:500}
+
+  /* right column widgets */
+  .side{position:absolute;right:2.6vw;top:2.6vw;bottom:2.6vw;width:22vw;display:flex;flex-direction:column;gap:1vw}
+  .w{padding:1vw 1.1vw}
+  .w h3{font-size:1.05vw;font-weight:500;display:flex;align-items:baseline;justify-content:space-between}
+  .w h3 small{font-size:.72vw;color:var(--dim);font-weight:400;letter-spacing:.06em}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:.15vw;margin-top:.6vw;text-align:center}
+  .cal .dow{font-size:.62vw;color:var(--dim);letter-spacing:.08em;padding-bottom:.2vw}
+  .cal .c{font-size:.82vw;padding:.28vw 0 .2vw;border-radius:.4vw;font-variant-numeric:tabular-nums;color:var(--muted);position:relative;height:2.05vw}
+  .cal .c.out{opacity:.25}
+  .cal .c.wk{color:var(--dim)}
+  .cal .c.hol{color:var(--text);background:rgba(255,255,255,.08)}
+  .cal .c.today{background:var(--text);color:#0b0f19;font-weight:600}
+  .cal .c .ds{position:absolute;left:0;right:0;bottom:.18vw;display:flex;justify-content:center;gap:.12vw}
+  .cal .c .ds i{width:.32vw;height:.32vw;border-radius:50%;display:block}
+  .legend{display:flex;gap:.8vw;font-size:.66vw;color:var(--dim);margin-top:.6vw}
+  .dot{display:inline-block;width:.5vw;height:.5vw;border-radius:50%;vertical-align:middle;margin-right:.25vw}
+  .us{background:var(--us)} .in{background:var(--in)} .uk{background:var(--uk)}
+  .up{list-style:none;margin-top:.6vw;display:flex;flex-direction:column;gap:.38vw}
+  .up li{display:grid;grid-template-columns:2.6vw 1fr auto;align-items:center;gap:.6vw;padding:.35vw .5vw;border-radius:.55vw;background:rgba(255,255,255,.05)}
+  .up li.now{background:rgba(255,255,255,.16)}
+  .up .d{text-align:center;line-height:1}
+  .up .d .mo{font-size:.55vw;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+  .up .d .dd{font-size:1.15vw;font-weight:300}
+  .up .nm{font-size:.82vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .up .when{font-size:.68vw;color:var(--dim);white-space:nowrap}
+  .up li.now .when{color:var(--text);font-weight:500}
+  .note{font-size:.58vw;color:var(--dim);margin-top:.5vw}
+  .spacer{flex:1}
+</style>
+</head>
+<body>
+<div class="bg fallback on" id="bgA"></div>
+<div class="bg" id="bgB"></div>
+<div class="shade"></div>
+<div id="stage">
+  <section class="clocks" id="clocks"></section>
+  <aside class="side">
+    <div class="glass w">
+      <h3><span id="monthTitle"></span><small>ATLANTA DATE</small></h3>
+      <div class="cal" id="cal"></div>
+      <div class="legend"><span><i class="dot us"></i>US</span><span><i class="dot in"></i>India · TS</span><span><i class="dot uk"></i>England</span></div>
+    </div>
+    <div class="glass w">
+      <h3>Upcoming holidays</h3>
+      <ul class="up" id="up"></ul>
+      <div class="note" id="note">* Tentative (moon sighting / 2027 notification pending)</div>
+    </div>
+    <div class="spacer"></div>
+  </aside>
+</div>
+<script>
+window.PHOTOS=["photos/s01.jpg", "photos/s02.jpg", "photos/s03.jpg", "photos/s04.jpg", "photos/s05.jpg", "photos/s06.jpg", "photos/s07.jpg", "photos/s08.jpg", "photos/s09.jpg", "photos/s10.jpg", "photos/s11.jpg", "photos/s12.jpg"];
+(function(){
+  var CITIES=[{name:"Atlanta",tag:"USA",tz:"America/New_York",accent:"var(--us)",cc:"us"},
+              {name:"Hyderabad",tag:"INDIA",tz:"Asia/Kolkata",accent:"var(--in)",cc:"in"},
+              {name:"London",tag:"UK",tz:"Europe/London",accent:"var(--uk)",cc:"uk"}];
+  // ---------- holidays ----------
+  function pad(n){return (n<10?"0":"")+n;}
+  function key(y,m,d){return y+"-"+pad(m)+"-"+pad(d);}
+  function dowOf(y,m,d){return new Date(Date.UTC(y,m-1,d)).getUTCDay();}
+  function nthDow(y,m,dow,n){var d=1+((dow-dowOf(y,m,1)+7)%7)+(n-1)*7;return d;}
+  function lastDow(y,m,dow){var last=new Date(Date.UTC(y,m,0)).getUTCDate();return last-((dowOf(y,m,last)-dow+7)%7);}
+  function addDays(y,m,d,n){var t=new Date(Date.UTC(y,m-1,d+n));return [t.getUTCFullYear(),t.getUTCMonth()+1,t.getUTCDate()];}
+  function easter(y){var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),
+    h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
+    mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return [y,mo,da];}
+
+  var H = {}; // "YYYY-MM-DD" -> [{n:name, c:country, t:tentative}]
+  function add(k,name,c,t){(H[k]=H[k]||[]).push({n:name,c:c,t:!!t});}
+
+  function usYear(y){
+    function fixed(m,d,name){add(key(y,m,d),name,"us");var w=dowOf(y,m,d);
+      if(w===6){var o=addDays(y,m,d,-1);add(key(o[0],o[1],o[2]),name+" (observed)","us");}
+      if(w===0){var p=addDays(y,m,d,1);add(key(p[0],p[1],p[2]),name+" (observed)","us");}}
+    fixed(1,1,"New Year's Day");
+    add(key(y,1,nthDow(y,1,1,3)),"Martin Luther King Jr. Day","us");
+    add(key(y,2,nthDow(y,2,1,3)),"Presidents' Day","us");
+    add(key(y,5,lastDow(y,5,1)),"Memorial Day","us");
+    fixed(6,19,"Juneteenth");
+    fixed(7,4,"Independence Day");
+    add(key(y,9,nthDow(y,9,1,1)),"Labor Day","us");
+    add(key(y,10,nthDow(y,10,1,2)),"Columbus Day","us");
+    fixed(11,11,"Veterans Day");
+    add(key(y,11,nthDow(y,11,4,4)),"Thanksgiving","us");
+    fixed(12,25,"Christmas Day");
+  }
+  function ukYear(y){
+    var w=dowOf(y,1,1); var nd=w===6?3:(w===0?2:1);
+    add(key(y,1,nd),"New Year's Day"+(nd>1?" (substitute)":""),"uk");
+    var e=easter(y), gf=addDays(e[0],e[1],e[2],-2), em=addDays(e[0],e[1],e[2],1);
+    add(key(gf[0],gf[1],gf[2]),"Good Friday","uk");
+    add(key(em[0],em[1],em[2]),"Easter Monday","uk");
+    add(key(y,5,nthDow(y,5,1,1)),"Early May bank holiday","uk");
+    add(key(y,5,lastDow(y,5,1)),"Spring bank holiday","uk");
+    add(key(y,8,lastDow(y,8,1)),"Summer bank holiday","uk");
+    var c=dowOf(y,12,25), cd, bd;
+    if(c===5){cd=25;bd=28;} else if(c===6){cd=27;bd=28;} else if(c===0){cd=27;bd=26;} else {cd=25;bd=26;}
+    add(key(y,12,cd),"Christmas Day"+(cd!==25?" (substitute)":""),"uk");
+    add(key(y,12,bd),"Boxing Day"+(bd!==26?" (substitute)":""),"uk");
+  }
+  // India / Telangana — 2026: Telangana GAD general holidays (G.O.Rt.No.1715); 2027: festival calendar, official list pending
+  var INDIA = [
+    ["2026-01-14","Bhogi"],["2026-01-15","Sankranti / Pongal"],["2026-01-26","Republic Day"],
+    ["2026-02-15","Maha Shivaratri"],["2026-03-03","Holi"],["2026-03-19","Ugadi"],
+    ["2026-03-21","Eid-ul-Fitr"],["2026-03-22","Day after Eid-ul-Fitr"],["2026-03-27","Sri Rama Navami"],
+    ["2026-04-03","Good Friday"],["2026-04-05","Babu Jagjivan Ram Jayanti"],["2026-04-14","Ambedkar Jayanti"],
+    ["2026-05-27","Eid-ul-Adha"],["2026-06-26","Muharram"],["2026-08-10","Bonalu"],
+    ["2026-08-15","Independence Day"],["2026-08-26","Milad-un-Nabi"],["2026-09-04","Sri Krishna Ashtami"],
+    ["2026-09-14","Vinayaka Chavithi"],["2026-10-02","Gandhi Jayanti"],["2026-10-18","Saddula Bathukamma"],
+    ["2026-10-20","Vijaya Dasami / Dasara"],["2026-10-21","Day after Dasara"],["2026-11-08","Deepavali"],
+    ["2026-11-24","Guru Nanak Jayanti"],["2026-12-25","Christmas Day"],["2026-12-26","Boxing Day"],
+    ["2027-01-14","Bhogi",1],["2027-01-15","Sankranti / Pongal",1],["2027-01-26","Republic Day"],
+    ["2027-03-06","Maha Shivaratri",1],["2027-03-10","Eid-ul-Fitr",1],["2027-03-22","Holi",1],
+    ["2027-03-26","Good Friday"],["2027-04-05","Babu Jagjivan Ram Jayanti"],["2027-04-07","Ugadi",1],
+    ["2027-04-14","Ambedkar Jayanti"],["2027-04-15","Sri Rama Navami",1],["2027-05-17","Eid-ul-Adha",1],
+    ["2027-06-16","Muharram",1],["2027-08-15","Independence Day"],["2027-08-15","Milad-un-Nabi",1],
+    ["2027-08-25","Sri Krishna Ashtami",1],["2027-09-04","Vinayaka Chavithi",1],["2027-10-02","Gandhi Jayanti"],
+    ["2027-10-09","Vijaya Dasami / Dasara",1],["2027-10-29","Deepavali",1],
+    ["2027-11-14","Guru Nanak Jayanti",1],["2027-12-25","Christmas Day"]
+  ];
+  INDIA.forEach(function(r){add(r[0],r[1],"in",r[2]);});
+  var INDIA_LAST = "2027-12-31";
+  var built = {};
+  function ensure(y){ if(built[y]) return; built[y]=1; usYear(y); ukYear(y); }
+
+  // merge same-named holidays on same day across countries
+  function itemsFor(k){
+    var list=H[k]||[], out=[], byName={};
+    list.forEach(function(h){var nm=h.n.replace(/ \((observed|substitute)\)$/,"");
+      var id=nm+"|"+h.n; // keep observed/substitute distinct
+      if(byName[h.n]){ if(byName[h.n].cs.indexOf(h.c)<0) byName[h.n].cs.push(h.c); byName[h.n].t=byName[h.n].t&&h.t; }
+      else { byName[h.n]={n:h.n,cs:[h.c],t:h.t}; out.push(byName[h.n]); }
+    });
+    var order={us:0,in:1,uk:2};
+    out.forEach(function(o){o.cs.sort(function(a,b){return order[a]-order[b];});});
+    return out;
+  }
+
+
+  function itemsFor(k){
+    var list=H[k]||[], out=[], by={};
+    list.forEach(function(h){ if(by[h.n]){ if(by[h.n].cs.indexOf(h.c)<0) by[h.n].cs.push(h.c); by[h.n].t=by[h.n].t&&h.t; }
+      else { by[h.n]={n:h.n,cs:[h.c],t:h.t}; out.push(by[h.n]); } });
+    var o={us:0,in:1,uk:2}; out.forEach(function(x){x.cs.sort(function(a,b){return o[a]-o[b];});});
+    return out;
+  }
+  // ---------- time helpers ----------
+  var fmtCache={};
+  function parts(tz,d){
+    var f=fmtCache[tz]||(fmtCache[tz]=new Intl.DateTimeFormat("en-US",{timeZone:tz,hour12:false,year:"numeric",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit",weekday:"short"}));
+    var o={}; f.formatToParts(d).forEach(function(p){o[p.type]=p.value;});
+    var h=parseInt(o.hour,10)%24;
+    return {y:+o.year,m:+o.month,d:+o.day,h:h,mi:+o.minute,s:+o.second,wd:o.weekday};
+  }
+  var MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var MSHORT=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+
+  // clocks
+  var refs=[], host=document.getElementById("clocks");
+  CITIES.forEach(function(c){
+    var el=document.createElement("div"); el.className="glass clock"; el.style.setProperty("--accent",c.accent);
+    el.innerHTML='<div class="city">'+c.name+'<span class="dn"></span></div><div class="time"></div><div class="date"></div>';
+    host.appendChild(el); refs.push({c:c,t:el.querySelector(".time"),d:el.querySelector(".date"),dn:el.querySelector(".dn")});
+  });
+  function offsetLabel(p,b){var a=Date.UTC(p.y,p.m-1,p.d,p.h,p.mi),z=Date.UTC(b.y,b.m-1,b.d,b.h,b.mi),df=Math.round((a-z)/60000);
+    if(!df) return "Atlanta"; var s=df>0?"+":"−"; df=Math.abs(df); return s+Math.floor(df/60)+"h"+(df%60?" "+(df%60)+"m":"");}
+  function tickClocks(now){
+    var base=parts(CITIES[0].tz,now);
+    refs.forEach(function(r){
+      var p=parts(r.c.tz,now), h12=p.h%12||12;
+      r.t.innerHTML=h12+":"+pad(p.mi)+'<span class="ap">'+(p.h<12?"AM":"PM")+'</span>';
+      var hol=itemsFor(key(p.y,p.m,p.d)).filter(function(x){return x.cs.indexOf(r.c.cc)>=0;});
+      r.d.innerHTML='<b>'+p.wd+', '+MSHORT[p.m-1]+' '+p.d+'</b>'+(r.c.cc==="us"?"":" · "+offsetLabel(p,base))+(hol.length?' · <span class="hol">'+hol[0].n+'</span>':'');
+      var day=p.h>=6&&p.h<18; r.dn.textContent=day?"☀︎":"☾"; r.dn.style.color=day?"#ffd36b":"#b9c2ff";
+    });
+  }
+  // calendar + upcoming
+  var lastK="";
+  function renderSide(now){
+    var p=parts(CITIES[0].tz,now), tk=key(p.y,p.m,p.d); if(tk===lastK) return; lastK=tk;
+    ensure(p.y-1);ensure(p.y);ensure(p.y+1);
+    document.getElementById("monthTitle").textContent=MONTHS[p.m-1]+" "+p.y;
+    var h="";["S","M","T","W","T","F","S"].forEach(function(d){h+='<div class="dow">'+d+'</div>';});
+    var first=dowOf(p.y,p.m,1),dim=new Date(Date.UTC(p.y,p.m,0)).getUTCDate(),cells=Math.ceil((first+dim)/7)*7;
+    for(var i=0;i<cells;i++){var dt=addDays(p.y,p.m,1,i-first),k=key(dt[0],dt[1],dt[2]),it=itemsFor(k),w=i%7,cs=[];
+      it.forEach(function(x){x.cs.forEach(function(c){if(cs.indexOf(c)<0)cs.push(c);});});
+      h+='<div class="c'+(dt[1]!==p.m?" out":"")+(w===0||w===6?" wk":"")+(it.length?" hol":"")+(k===tk?" today":"")+'">'+dt[2]+
+         (cs.length?'<span class="ds">'+cs.map(function(c){return '<i class="'+c+'"></i>';}).join("")+'</span>':'')+'</div>';}
+    document.getElementById("cal").innerHTML=h;
+    var u="",n=0,max=6;
+    for(var j=0;j<400&&n<max;j++){var d=addDays(p.y,p.m,p.d,j);ensure(d[0]);
+      itemsFor(key(d[0],d[1],d[2])).forEach(function(x){ if(n>=max) return; n++;
+        var when=j===0?"Today":(j===1?"Tomorrow":j+" days");
+        u+='<li class="'+(j===0?"now":"")+'"><div class="d"><div class="mo">'+MSHORT[d[1]-1]+'</div><div class="dd">'+d[2]+'</div></div><div class="nm">'+
+           x.cs.map(function(c){return '<i class="dot '+c+'"></i>';}).join("")+x.n+(x.t?"*":"")+'</div><div class="when">'+when+'</div></li>'; });}
+    document.getElementById("up").innerHTML=u;
+    if(tk>INDIA_LAST) document.getElementById("note").textContent="India holiday list needs updating for "+p.y;
+  }
+  // photo slideshow
+  var photos=(window.PHOTOS||[]).slice(), A=document.getElementById("bgA"), B=document.getElementById("bgB"), front=A, idx=-1, z=1;
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}}
+  shuffle(photos);
+  function nextPhoto(){
+    if(!photos.length) return; idx=(idx+1)%photos.length; var src=photos[idx], img=new Image();
+    img.onload=function(){var back=front===A?B:A, old=front; z+=1; back.style.zIndex=z;
+      back.style.backgroundImage='url("'+src+'")'; back.className="bg"; void back.offsetWidth; back.className="bg on";
+      setTimeout(function(){old.className="bg";},2700); front=back;};
+    img.onerror=function(){setTimeout(nextPhoto,500);};
+    img.src=src;
+  }
+  if(photos.length){ nextPhoto(); setInterval(nextPhoto, 25000); }
+
+  var skew=0; try{var q=/[?&]at=([^&]+)/.exec(location.search); if(q) skew=new Date(decodeURIComponent(q[1])).getTime()-Date.now();}catch(e){}
+  function loop(){var now=new Date(Date.now()+skew); tickClocks(now); renderSide(now);}
+  loop(); setTimeout(function(){loop(); setInterval(loop,1000);},1000-(Date.now()%1000));
+  var drift=[[0,0],[6,4],[-5,6],[4,-5],[-6,-3]],di=0;
+  setInterval(function(){di=(di+1)%drift.length;document.getElementById("stage").style.transform="translate("+drift[di][0]+"px,"+drift[di][1]+"px)";},120000);
+})();
+</script>
+</body>
+</html>
