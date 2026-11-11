@@ -3,66 +3,114 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>World Clock &amp; Holidays</title>
+<title>Home Dashboard</title>
 <style>
-  :root{--text:#f3f5fa;--muted:rgba(243,245,250,.72);--dim:rgba(243,245,250,.5);
-    --glass:rgba(10,14,24,.48);--line:rgba(255,255,255,.14);
-    --us:#5b95ff;--in:#ffa24a;--uk:#ff6a8f;}
+  :root{--text:#f3f5fa;--muted:rgba(243,245,250,.74);--dim:rgba(243,245,250,.52);
+    --glass:rgba(10,14,24,.52);--line:rgba(255,255,255,.14);
+    --us:#5b95ff;--in:#ffa24a;--uk:#ff6a8f;--focus:#ffffff;}
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;background:#05070d;color:var(--text);overflow:hidden;
     font-family:Roboto,"Segoe UI","Helvetica Neue",Arial,sans-serif;}
-  .bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;
-    transition:opacity 2.5s ease;will-change:opacity,transform}
-  .bg.on{opacity:1;animation:kb 26s linear forwards}
-  @keyframes kb{from{transform:scale(1.0)}to{transform:scale(1.025)}}
+  .bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 2s ease}
+  .bg.on{opacity:1}
   .bg.fallback{background:radial-gradient(1200px 800px at 20% 30%,#1d3b6b,transparent 60%),radial-gradient(1000px 700px at 80% 80%,#5a2d1a,transparent 60%),#0a0f1c}
   .shade{position:absolute;inset:0;z-index:50;pointer-events:none;
-    background:linear-gradient(to left,rgba(0,0,0,.55) 0%,rgba(0,0,0,.25) 26%,rgba(0,0,0,0) 45%),
-               linear-gradient(to top,rgba(0,0,0,.6) 0%,rgba(0,0,0,.15) 28%,rgba(0,0,0,0) 45%);}
-  #stage{position:absolute;inset:0;z-index:60;transition:transform 2s ease}
-  .glass{background:var(--glass);border:1px solid var(--line);border-radius:1.1vw;
-    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 .6vw 2vw rgba(0,0,0,.25)}
+    background:linear-gradient(to left,rgba(0,0,0,.55) 0%,rgba(0,0,0,.2) 28%,rgba(0,0,0,0) 45%),
+               linear-gradient(to top,rgba(0,0,0,.7) 0%,rgba(0,0,0,.2) 26%,rgba(0,0,0,0) 40%);}
+  #stage{position:absolute;inset:0;z-index:60}
+  .glass{background:var(--glass);border:1px solid var(--line);border-radius:1vw;box-shadow:0 .5vw 1.6vw rgba(0,0,0,.25)}
 
-  /* clocks bottom-left */
-  .clocks{position:absolute;left:2.6vw;bottom:2.6vw;display:flex;gap:1vw}
-  .clock{padding:.9vw 1.3vw 1vw;min-width:14.5vw;position:relative;overflow:hidden}
-  .clock::before{content:"";position:absolute;left:0;top:0;bottom:0;width:.28vw;background:var(--accent)}
-  .city{display:flex;align-items:center;gap:.5vw;font-size:.95vw;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-  .city .dn{margin-left:auto;font-size:1vw;letter-spacing:0}
-  .time{font-size:3.4vw;font-weight:300;line-height:1.05;font-variant-numeric:tabular-nums;letter-spacing:-.02em;text-shadow:0 2px 12px rgba(0,0,0,.35)}
-  .time .ap{font-size:1.1vw;font-weight:400;color:var(--muted);margin-left:.4vw;letter-spacing:.05em}
-  .date{font-size:.85vw;color:var(--muted);margin-top:.15vw;white-space:nowrap}
-  .date b{color:var(--text);font-weight:500}
-  .date .hol{color:var(--accent);font-weight:500}
-
-  /* right column widgets */
-  .side{position:absolute;right:2.6vw;top:2.6vw;bottom:2.6vw;width:22vw;display:flex;flex-direction:column;gap:1vw}
-  .w{padding:1vw 1.1vw}
-  .w h3{font-size:1.05vw;font-weight:500;display:flex;align-items:baseline;justify-content:space-between}
-  .w h3 small{font-size:.72vw;color:var(--dim);font-weight:400;letter-spacing:.06em}
-  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:.15vw;margin-top:.6vw;text-align:center}
-  .cal .dow{font-size:.62vw;color:var(--dim);letter-spacing:.08em;padding-bottom:.2vw}
-  .cal .c{font-size:.82vw;padding:.28vw 0 .2vw;border-radius:.4vw;font-variant-numeric:tabular-nums;color:var(--muted);position:relative;height:2.05vw}
-  .cal .c.out{opacity:.25}
-  .cal .c.wk{color:var(--dim)}
+  /* right column */
+  .side{position:absolute;right:1.2vw;top:1.2vw;bottom:1.2vw;width:23.2vw;display:flex;flex-direction:column;gap:.55vw}
+  .w{padding:.6vw .85vw}
+  .w h3{font-size:1vw;font-weight:500;display:flex;align-items:baseline;justify-content:space-between}
+  .w h3 small{font-size:.65vw;color:var(--dim);font-weight:400;letter-spacing:.06em}
+  .clk{display:grid;grid-template-columns:.22vw 1fr auto;gap:.6vw;align-items:center;padding:.22vw 0}
+  .clk+.clk{border-top:1px solid var(--line)}
+  .clk .bar{height:2.2vw;border-radius:.2vw;background:var(--a)}
+  .clk .wx{letter-spacing:0;text-transform:none;color:var(--text);margin-left:.5vw;font-size:.85vw;font-family:'Noto Color Emoji',Roboto,sans-serif}
+  .clk .wx small{font-size:.85vw;color:var(--muted);font-family:Roboto,sans-serif}
+  .clk .c{font-size:.78vw;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .clk .d{font-size:.72vw;color:var(--dim);margin-top:.1vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .clk>div:nth-child(2){min-width:0}
+  .clk .d .hol{color:var(--a)}
+  .clk .t{font-size:2.2vw;font-weight:300;font-variant-numeric:tabular-nums;letter-spacing:-.02em;white-space:nowrap}
+  .clk .t small{font-size:.75vw;color:var(--muted);margin-left:.25vw}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:.1vw;margin-top:.35vw;text-align:center}
+  .cal .dow{font-size:.62vw;color:var(--dim);letter-spacing:.08em;padding-bottom:.15vw}
+  .cal .c{font-size:.82vw;padding:.15vw 0 .1vw;border-radius:.3vw;font-variant-numeric:tabular-nums;color:var(--muted);position:relative;height:1.55vw}
+  .cal .c.out{opacity:.25} .cal .c.wk{color:var(--dim)}
   .cal .c.hol{color:var(--text);background:rgba(255,255,255,.08)}
   .cal .c.today{background:var(--text);color:#0b0f19;font-weight:600}
-  .cal .c .ds{position:absolute;left:0;right:0;bottom:.18vw;display:flex;justify-content:center;gap:.12vw}
-  .cal .c .ds i{width:.32vw;height:.32vw;border-radius:50%;display:block}
-  .legend{display:flex;gap:.8vw;font-size:.66vw;color:var(--dim);margin-top:.6vw}
-  .dot{display:inline-block;width:.5vw;height:.5vw;border-radius:50%;vertical-align:middle;margin-right:.25vw}
+  .cal .c .ds{position:absolute;left:0;right:0;bottom:.12vw;display:flex;justify-content:center;gap:.1vw}
+  .cal .c .ds i{width:.28vw;height:.28vw;border-radius:50%;display:block}
+  .dot{display:inline-block;width:.45vw;height:.45vw;border-radius:50%;vertical-align:middle;margin-right:.22vw}
   .us{background:var(--us)} .in{background:var(--in)} .uk{background:var(--uk)}
-  .up{list-style:none;margin-top:.6vw;display:flex;flex-direction:column;gap:.38vw}
-  .up li{display:grid;grid-template-columns:2.6vw 1fr auto;align-items:center;gap:.6vw;padding:.35vw .5vw;border-radius:.55vw;background:rgba(255,255,255,.05)}
+  .legend{display:flex;gap:.6vw;font-size:.64vw;color:var(--dim);margin-top:.3vw}
+  .up{list-style:none;margin-top:.35vw;display:flex;flex-direction:column;gap:.22vw}
+  .up li{display:grid;grid-template-columns:2.1vw 1fr auto;align-items:center;gap:.45vw;padding:.18vw .4vw;border-radius:.5vw;background:rgba(255,255,255,.05)}
   .up li.now{background:rgba(255,255,255,.16)}
-  .up .d{text-align:center;line-height:1}
-  .up .d .mo{font-size:.55vw;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
-  .up .d .dd{font-size:1.15vw;font-weight:300}
+  .up .dd{text-align:center;line-height:1}
+  .up .dd .mo{font-size:.5vw;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+  .up .dd .n{font-size:1.05vw;font-weight:300}
   .up .nm{font-size:.82vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .up .when{font-size:.68vw;color:var(--dim);white-space:nowrap}
-  .up li.now .when{color:var(--text);font-weight:500}
-  .note{font-size:.58vw;color:var(--dim);margin-top:.5vw}
-  .spacer{flex:1}
+  .note{font-size:.52vw;color:var(--dim);margin-top:.25vw}
+
+  /* school widget (top-left) */
+  :root{--sc:#4fd18b}
+  .sc{background:var(--sc)}
+  .school{background:rgba(8,11,20,.7)}
+  .school .who{display:flex;align-items:center;gap:.55vw}
+  .school .av{width:1.9vw;height:1.9vw;border-radius:50%;background:var(--sc);color:#06210f;font-weight:700;font-size:.95vw;display:flex;align-items:center;justify-content:center}
+  .school .nm{font-size:1vw;font-weight:500}
+  .school .sub{font-size:.66vw;color:var(--dim)}
+  .school .today{margin-top:.45vw;font-size:1.02vw;font-weight:500}
+  .school .today.off{color:var(--sc)} .school .today.rem{color:#ffd36b}
+  .school .next{margin-top:.15vw;font-size:.78vw;color:var(--muted)}
+  .school ul{list-style:none;margin-top:.4vw;display:flex;flex-direction:column;gap:.22vw}
+  .school li{display:flex;justify-content:space-between;gap:.8vw;font-size:.78vw;padding:.2vw .45vw;border-radius:.45vw;background:rgba(255,255,255,.06)}
+  .school li span:last-child{color:var(--dim);white-space:nowrap}
+  .school .left{margin-top:.35vw;font-size:.6vw;color:var(--dim)}
+
+  /* lunch widget */
+  .lunch .day{margin-top:.3vw;padding:.25vw .45vw;border-radius:.45vw;background:rgba(255,255,255,.06)}
+  .lunch .dl{font-size:.7vw;color:var(--sc);letter-spacing:.06em;text-transform:uppercase}
+  .lunch .mains{font-size:.85vw;margin-top:.1vw;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .lunch .sides{font-size:.72vw;color:var(--dim);margin-top:.1vw}
+  .lunch .msg{font-size:.75vw;color:var(--dim);margin-top:.35vw}
+  .lunch h3 small{font-size:.6vw}
+
+  /* toast */
+  #toast{position:absolute;left:50%;bottom:12vw;transform:translateX(-50%);z-index:90;background:rgba(8,11,20,.92);border:1px solid var(--line);
+    border-radius:1vw;padding:1vw 1.6vw;font-size:1.15vw;line-height:1.5;text-align:center;opacity:0;transition:opacity .4s;pointer-events:none;max-width:40vw}
+  #toast.on{opacity:1}
+  #toast b{color:var(--sc)}
+
+  /* dock */
+  .dock{position:absolute;left:1.6vw;bottom:1.4vw;right:26vw;display:flex;gap:1vw;align-items:flex-end;overflow:hidden;padding:1.4vw 1.4vw .4vw}
+  .tile{flex:none;width:10.2vw;text-align:center;transition:transform .15s ease;transform-origin:50% 60%}
+  .tile .art{width:10.2vw;height:5.74vw;border-radius:.6vw;background:rgba(20,24,34,.85) center/contain no-repeat;border:2px solid transparent;
+    box-shadow:0 .4vw 1.2vw rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;font-size:2vw;overflow:hidden}
+  .tile .art.icon{background-size:42%}
+  .tile .art.banner{background-size:cover}
+  .tile .lbl{font-size:.75vw;color:var(--muted);margin-top:.4vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .15s}
+  .tile.f{transform:scale(1.12)} .tile.f .art{border-color:var(--focus)} .tile.f .lbl{opacity:1;color:var(--text)}
+  .tile .pin{position:absolute}
+  .hint{transition:opacity 1.5s;position:absolute;left:3vw;bottom:.6vw;font-size:.62vw;color:var(--dim)}
+
+  /* all apps drawer */
+  #drawer{position:absolute;inset:0;z-index:80;background:rgba(5,8,14,.94);display:none;padding:3vw 4vw}
+  #drawer.open{display:block}
+  #drawer h2{font-size:1.8vw;font-weight:400;display:flex;align-items:center;gap:1.4vw}
+  #drawer .btn{font-size:.9vw;padding:.5vw 1vw;border-radius:2vw;border:2px solid var(--line);color:var(--muted)}
+  #drawer .btn.f{border-color:var(--focus);color:var(--text);background:rgba(255,255,255,.12)}
+  #drawer .btn.on{background:var(--in);color:#1a1205;border-color:var(--in)}
+  #drawer .sub{font-size:.85vw;color:var(--dim);margin-top:.5vw}
+  #grid{display:grid;grid-template-columns:repeat(6,10.2vw);gap:2.2vw 2.6vw;margin-top:1.4vw;max-height:78vh;overflow:hidden;padding:1vw 1.2vw}
+  #grid .tile{position:relative}
+  #grid .tile .lbl{opacity:1}
+  #grid .tile .star{position:absolute;top:.3vw;right:.4vw;font-size:1vw;color:var(--in);text-shadow:0 0 .4vw rgba(0,0,0,.8)}
 </style>
 </head>
 <body>
@@ -70,27 +118,52 @@
 <div class="bg" id="bgB"></div>
 <div class="shade"></div>
 <div id="stage">
-  <section class="clocks" id="clocks"></section>
   <aside class="side">
+    <div class="glass w" id="clocks"></div>
     <div class="glass w">
       <h3><span id="monthTitle"></span><small>ATLANTA DATE</small></h3>
       <div class="cal" id="cal"></div>
-      <div class="legend"><span><i class="dot us"></i>US</span><span><i class="dot in"></i>India · TS</span><span><i class="dot uk"></i>England</span></div>
+      <div class="legend"><span><i class="dot us"></i>US</span><span><i class="dot in"></i>India · TS</span><span><i class="dot uk"></i>England</span><span><i class="dot sc"></i>School</span></div>
     </div>
     <div class="glass w">
       <h3>Upcoming holidays</h3>
       <ul class="up" id="up"></ul>
-      <div class="note" id="note">* Tentative (moon sighting / 2027 notification pending)</div>
+      <div class="note" id="note" style="display:none"></div>
     </div>
-    <div class="spacer"></div>
+    <div class="glass w school" id="school"></div>
+    <div class="glass w lunch" id="lunch"><h3>Lunch menu<small>MEALVIEWER</small></h3><div class="msg">Loading…</div></div>
   </aside>
+  <div class="dock" id="dock"></div>
+  <div class="hint" id="hint">◀ ▶ choose · OK open · ☰ Menu or "All apps" to add/remove favourites</div>
+</div>
+<div id="toast"></div>
+<div id="drawer">
+  <h2>All apps <span class="btn" id="bEdit">★ Edit favourites</span><span class="btn" id="bDone">Done</span></h2>
+  <div class="sub" id="dsub">OK opens an app. Turn on "Edit favourites", then OK adds or removes ★ apps from the home row.</div>
+  <div id="grid"></div>
 </div>
 <script>
-window.PHOTOS=["s01.jpg", "s02.jpg", "s03.jpg", "s04.jpg", "s05.jpg", "s06.jpg", "s07.jpg", "s08.jpg", "s09.jpg", "s10.jpg", "s11.jpg", "s12.jpg"];
+window.SCREENSAVER=true; window.PHOTOS=["s01.jpg", "s02.jpg", "s03.jpg", "s04.jpg", "s05.jpg", "s06.jpg", "s07.jpg", "s08.jpg", "s09.jpg", "s10.jpg", "s11.jpg", "s12.jpg"];
 (function(){
-  var CITIES=[{name:"Atlanta",tag:"USA",tz:"America/New_York",accent:"var(--us)",cc:"us"},
-              {name:"Hyderabad",tag:"INDIA",tz:"Asia/Kolkata",accent:"var(--in)",cc:"in"},
-              {name:"London",tag:"UK",tz:"Europe/London",accent:"var(--uk)",cc:"uk"}];
+  // ---------- bridge (mock when opened in a normal browser) ----------
+  var SS=!!window.SCREENSAVER;
+  var A = window.Android || (SS ? {
+    getApps:function(){return "[]";}, getIcon:function(){return "";}, launch:function(){}, openSettings:function(){}, isFireTV:function(){return false;},
+    getPref:function(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}, setPref:function(k,v){try{localStorage.setItem(k,v);}catch(e){}},
+    httpGet:function(u){ if(!/open-meteo/.test(u)) return ""; try{ var x=new XMLHttpRequest(); x.open("GET",u,false); x.send(); return x.status===200?x.responseText:""; }catch(e){ return ""; } }
+  } : {
+    getApps:function(){return JSON.stringify([{pkg:"com.netflix.ninja",label:"Netflix"},{pkg:"com.amazon.amazonvideo.livingroom",label:"Prime Video"},
+      {pkg:"com.google.android.youtube.tv",label:"YouTube"},{pkg:"com.spotify.tv.android",label:"Spotify"},{pkg:"com.google.android.youtube.tvkids",label:"YouTube Kids"},
+      {pkg:"com.android.vending",label:"Google Play Store"},{pkg:"in.startv.hotstar",label:"Hotstar"},{pkg:"com.hulu.livingroomplus",label:"Hulu"},
+      {pkg:"com.apple.atve.androidtv.appletv",label:"Apple TV"},{pkg:"com.gappleby.androidtvss",label:"TV Screensaver"}]);},
+    httpGet:function(u){ if(/open-meteo/.test(u)) return JSON.stringify([{current:{temperature_2m:11.4,weather_code:0,is_day:0}},{current:{temperature_2m:26.2,weather_code:0,is_day:1}},{current:{temperature_2m:8.6,weather_code:51,is_day:0}}]); return JSON.stringify({menuSchedules:[{dateInformation:{dateFull:"2026-11-11T00:00:00"},menuBlocks:[{blockName:"Lunch",cafeteriaLineList:{data:[{foodItemList:{data:[{item_Name:"Nachos Grande",item_Type:"Entree"},{item_Name:"Chicken Filet Sandwich",item_Type:"Entree"},{item_Name:"Cheese Nachos (V)",item_Type:"Vegetarian "},{item_Name:"Chef Salad w/ Sunflower Seeds (V)",item_Type:"Vegetarian "},{item_Name:"Baby Carrots",item_Type:"Vegetable"},{item_Name:"Esquites Street Corn",item_Type:"Vegetable"},{item_Name:"Ketchup Packet",item_Type:"Condiments"}]}}]}}]},{dateInformation:{dateFull:"2026-11-12T00:00:00"},menuBlocks:[{blockName:"Lunch",cafeteriaLineList:{data:[{foodItemList:{data:[{item_Name:"Breaded Drumstick",item_Type:"Entree"},{item_Name:"w/ Whole Grain Breadstick",item_Type:"Entree"},{item_Name:"Mini Corndogs",item_Type:"Entree"},{item_Name:"Yogurt and Cheese Pack (V)",item_Type:"Vegetarian "},{item_Name:"Applesauce",item_Type:"Fruit"},{item_Name:"Signature Side Salad",item_Type:"Vegetable"},{item_Name:"Baked Beans",item_Type:"Vegetable"}]}}]}}]}]}); },
+    getIcon:function(){return "";}, launch:function(p){console.log("launch",p);}, openSettings:function(){console.log("settings");},
+    getPref:function(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}, setPref:function(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+  });
+
+  var CITIES=[{name:"Atlanta",tz:"America/New_York",a:"var(--us)",cc:"us",lat:34.0289,lon:-84.1986},
+              {name:"Hyderabad",tz:"Asia/Kolkata",a:"var(--in)",cc:"in",lat:17.385,lon:78.4867},
+              {name:"London",tz:"Europe/London",a:"var(--uk)",cc:"uk",lat:51.5072,lon:-0.1276}];
   // ---------- holidays ----------
   function pad(n){return (n<10?"0":"")+n;}
   function key(y,m,d){return y+"-"+pad(m)+"-"+pad(d);}
@@ -193,26 +266,144 @@ window.PHOTOS=["s01.jpg", "s02.jpg", "s03.jpg", "s04.jpg", "s05.jpg", "s06.jpg",
   var MSHORT=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 
-  // clocks
-  var refs=[], host=document.getElementById("clocks");
+  // ---------- Diya's school (Fulton County Schools official 2026-27 calendar) ----------
+  var KID="Diya", SCHOOL="Medlock Bridge Elementary";
+  var SCHOOL_EVENTS=[ // [start,end,name,type] type: off | remote | info
+    ["2026-07-27","2026-07-31","Teacher workdays","off"],["2026-08-03","2026-08-03","First day of school","info"],
+    ["2026-09-07","2026-09-07","Labor Day","off"],["2026-09-21","2026-09-23","Fall Break","off"],["2026-09-24","2026-09-25","Teacher workdays","off"],
+    ["2026-10-12","2026-10-12","Holiday","off"],["2026-11-03","2026-11-03","Election Day · remote learning","remote"],
+    ["2026-11-23","2026-11-27","Thanksgiving Break","off"],["2026-12-18","2026-12-18","Last day of 1st semester","info"],
+    ["2026-12-21","2027-01-01","Winter Break","off"],["2027-01-04","2027-01-04","Teacher workday","off"],
+    ["2027-01-05","2027-01-05","2nd semester starts","info"],["2027-01-18","2027-01-18","MLK Jr. Day","off"],
+    ["2027-02-15","2027-02-17","February Break","off"],["2027-02-18","2027-02-19","Teacher workdays","off"],
+    ["2027-03-15","2027-03-15","Holiday","off"],["2027-04-05","2027-04-09","Spring Break","off"],
+    ["2027-05-27","2027-05-27","Last day of school","info"]
+  ];
+  var SCHOOL_FIRST="2026-08-03", SCHOOL_LAST="2027-05-27";
+  function kd(k){var a=k.split("-");return Date.UTC(+a[0],+a[1]-1,+a[2]);}
+  function kAdd(k,n){var t=new Date(kd(k)+n*86400000);return key(t.getUTCFullYear(),t.getUTCMonth()+1,t.getUTCDate());}
+  function dowK(k){return new Date(kd(k)).getUTCDay();}
+  function schoolOn(k){for(var i=0;i<SCHOOL_EVENTS.length;i++){var e=SCHOOL_EVENTS[i]; if(k>=e[0]&&k<=e[1]&&e[3]!=="info") return e;} return null;}
+  function fmtK(k){var a=k.split("-");return MSHORT[+a[1]-1]+" "+(+a[2]);}
+  function rangeTxt(e){return e[0]===e[1]?fmtK(e[0]):fmtK(e[0])+" – "+fmtK(e[1]);}
+  // put no-school days on the main calendar
+  var SCH={}; SCHOOL_EVENTS.forEach(function(e){ if(e[3]==="info") return; for(var k=e[0];k<=e[1];k=kAdd(k,1)){ if(dowK(k)%6) SCH[k]=e[3]; } });
+  var lastSchoolK="";
+  function renderSchool(now){
+    var p=parts(CITIES[0].tz,now), tk=key(p.y,p.m,p.d); if(tk===lastSchoolK) return; lastSchoolK=tk;
+    var el=document.getElementById("school"), w=dowK(tk), ev=schoolOn(tk), today, cls="";
+    if(tk<SCHOOL_FIRST||tk>SCHOOL_LAST){ today="Summer break"; cls="off"; }
+    else if(w===0||w===6){ var nk=tk; do{nk=kAdd(nk,1);}while(dowK(nk)%6===0||schoolOn(nk)&&schoolOn(nk)[3]==="off"); today="Weekend · back "+["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][dowK(nk)]+" "+fmtK(nk); cls="off"; }
+    else if(ev&&ev[3]==="off"){ today="No school today · "+ev[2]; cls="off"; }
+    else if(ev&&ev[3]==="remote"){ today="Remote learning today"; cls="rem"; }
+    else today="School day today";
+    var up=SCHOOL_EVENTS.filter(function(e){return e[1]>=tk && !(e[0]<=tk&&e[1]>=tk&&e[3]!=="info");}).slice(0,2);
+    var nextOff=SCHOOL_EVENTS.filter(function(e){return e[0]>tk&&e[3]!=="info";})[0], nextTxt="";
+    if(nextOff){ var dd=Math.round((kd(nextOff[0])-kd(tk))/86400000); nextTxt="Next day off: <b>"+nextOff[2]+"</b> · "+(dd===1?"tomorrow":"in "+dd+" days"); }
+    var left=0; if(tk<=SCHOOL_LAST){ for(var k=tk>SCHOOL_FIRST?tk:SCHOOL_FIRST;k<=SCHOOL_LAST;k=kAdd(k,1)){ if(dowK(k)%6&&!(schoolOn(k)&&schoolOn(k)[3]==="off")) left++; } }
+    el.innerHTML='<div class="who"><div class="av">'+KID[0]+'</div><div><div class="nm">'+KID+'</div><div class="sub">'+SCHOOL+'</div></div></div>'+
+      '<div class="today '+cls+'">'+today+'</div>'+(nextTxt?'<div class="next">'+nextTxt+'</div>':'')+
+      '<ul>'+up.map(function(e){return '<li><span>'+e[2]+'</span><span>'+rangeTxt(e)+'</span></li>';}).join("")+'</ul>'+
+      (left?'<div class="left">'+left+' school days left · Fulton County Schools calendar</div>':'');
+  }
+
+  // ---------- school lunch (MealViewer, next 2 school days) ----------
+  var MV_SCHOOL="MedlockBridgeElementary", lunchKey="", lunchFetched=0;
+  function isSchoolDay(k){ return k>=SCHOOL_FIRST && k<=SCHOOL_LAST && dowK(k)%6!==0 && !(schoolOn(k)&&schoolOn(k)[3]==="off"); }
+  function mvDate(k){ var a=k.split("-"); return a[1]+"-"+a[2]+"-"+a[0]; }
+  function lunchDays(p){
+    var k=kAdd(key(p.y,p.m,p.d),1), out=[];                 // the next school day after today
+    for(var i=0;i<30&&out.length<1;i++,k=kAdd(k,1)) if(isSchoolDay(k)) out.push(k);
+    return out;
+  }
+  function clean(n){ return String(n||"").replace(/^w\/\s*/i,"with ").trim(); }
+  function renderLunch(days,data){
+    var el=document.getElementById("lunch"), h='<h3>Lunch menu<small>MEALVIEWER</small></h3>';
+    if(!days.length){ el.innerHTML=h+'<div class="msg">No school days coming up.</div>'; return; }
+    var byDate={};
+    ((data&&data.menuSchedules)||[]).forEach(function(m){
+      var dk=((m.dateInformation&&m.dateInformation.dateFull)||"").slice(0,10), mains=[], sides=[];
+      (m.menuBlocks||[]).forEach(function(b){ if(!/lunch/i.test(b.blockName||"")) return;
+        ((b.cafeteriaLineList||{}).data||[]).forEach(function(l){ ((l.foodItemList||{}).data||[]).forEach(function(f){
+          var t=String(f.item_Type||"").trim(), n=clean(f.item_Name);
+          if(/entree|vegetarian/i.test(t)){ if(/^with /i.test(n)&&mains.length) mains[mains.length-1]+=" "+n; else mains.push(n); }
+          else if(/vegetable|^fruit$/i.test(t)) sides.push(n);
+        }); }); });
+      byDate[dk]={mains:mains,sides:sides};
+    });
+    var wd=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], tk=key(parts(CITIES[0].tz,new Date(Date.now()+skew)).y,parts(CITIES[0].tz,new Date(Date.now()+skew)).m,parts(CITIES[0].tz,new Date(Date.now()+skew)).d);
+    days.forEach(function(k){
+      var d=byDate[k], label=(k===tk?"Today":(k===kAdd(tk,1)?"Tomorrow":wd[dowK(k)]))+" · "+fmtK(k);
+      h+='<div class="day"><div class="dl">'+label+'</div>'+
+        (d&&d.mains.length?'<div class="mains">'+d.mains.slice(0,4).join(" · ")+'</div>'+(d.sides.length?'<div class="sides">Sides: '+d.sides.join(", ")+'</div>':'')
+                         :'<div class="sides">Menu not posted yet</div>')+'</div>';
+    });
+    el.innerHTML=h;
+  }
+  function updateLunch(p,force){
+    var days=lunchDays(p), want=days.join(","), now=Date.now();
+    if(!force && want===lunchKey && now-lunchFetched<3*3600*1000) return;
+    lunchKey=want; lunchFetched=now;
+    var cached=null; try{ cached=JSON.parse(A.getPref("lunch:"+want)||"null"); }catch(e){}
+    if(cached) renderLunch(days,cached);
+    if(!days.length){ renderLunch(days,null); return; }
+    setTimeout(function(){
+      var body=""; try{ body=A.httpGet ? A.httpGet("https://api.mealviewer.com/api/v4/school/"+MV_SCHOOL+"/"+mvDate(days[0])+"/"+mvDate(days[days.length-1])+"/") : ""; }catch(e){}
+      var data=null; try{ data=body?JSON.parse(body):null; }catch(e){}
+      if(data){ var slim={menuSchedules:(data.menuSchedules||[]).map(function(m){return {dateInformation:m.dateInformation,menuBlocks:(m.menuBlocks||[]).filter(function(b){return /lunch/i.test(b.blockName||"");})};})};
+        try{ A.setPref("lunch:"+want,JSON.stringify(slim)); }catch(e){}
+        renderLunch(days,slim); }
+      else if(!cached){ var el=document.getElementById("lunch"); el.innerHTML='<h3>Lunch menu<small>MEALVIEWER</small></h3><div class="msg">Menu unavailable (no internet?). Retrying…</div>'; lunchFetched=now-3*3600*1000+10*60*1000; }
+    },50);
+  }
+
+  // ---------- clocks ----------
+  var ck=document.getElementById("clocks"), refs=[];
   CITIES.forEach(function(c){
-    var el=document.createElement("div"); el.className="glass clock"; el.style.setProperty("--accent",c.accent);
-    el.innerHTML='<div class="city">'+c.name+'<span class="dn"></span></div><div class="time"></div><div class="date"></div>';
-    host.appendChild(el); refs.push({c:c,t:el.querySelector(".time"),d:el.querySelector(".date"),dn:el.querySelector(".dn")});
+    var el=document.createElement("div"); el.className="clk"; el.style.setProperty("--a",c.a);
+    el.innerHTML='<div class="bar"></div><div><div class="c">'+c.name+'<span class="wx"></span></div><div class="d"></div></div><div class="t"></div>';
+    ck.appendChild(el); refs.push({c:c,t:el.querySelector(".t"),d:el.querySelector(".d"),wx:el.querySelector(".wx")});
   });
-  function offsetLabel(p,b){var a=Date.UTC(p.y,p.m-1,p.d,p.h,p.mi),z=Date.UTC(b.y,b.m-1,b.d,b.h,b.mi),df=Math.round((a-z)/60000);
-    if(!df) return "Atlanta"; var s=df>0?"+":"−"; df=Math.abs(df); return s+Math.floor(df/60)+"h"+(df%60?" "+(df%60)+"m":"");}
+  function offs(p,b){var a=Date.UTC(p.y,p.m-1,p.d,p.h,p.mi),z=Date.UTC(b.y,b.m-1,b.d,b.h,b.mi),df=Math.round((a-z)/60000);
+    if(!df) return ""; var s=df>0?"+":"−"; df=Math.abs(df); return " · "+s+Math.floor(df/60)+"h"+(df%60?" "+(df%60)+"m":"");}
   function tickClocks(now){
     var base=parts(CITIES[0].tz,now);
     refs.forEach(function(r){
       var p=parts(r.c.tz,now), h12=p.h%12||12;
-      r.t.innerHTML=h12+":"+pad(p.mi)+'<span class="ap">'+(p.h<12?"AM":"PM")+'</span>';
+      r.t.innerHTML=h12+":"+pad(p.mi)+'<small>'+(p.h<12?"AM":"PM")+'</small>';
       var hol=itemsFor(key(p.y,p.m,p.d)).filter(function(x){return x.cs.indexOf(r.c.cc)>=0;});
-      r.d.innerHTML='<b>'+p.wd+', '+MSHORT[p.m-1]+' '+p.d+'</b>'+(r.c.cc==="us"?"":" · "+offsetLabel(p,base))+(hol.length?' · <span class="hol">'+hol[0].n+'</span>':'');
-      var day=p.h>=6&&p.h<18; r.dn.textContent=day?"☀︎":"☾"; r.dn.style.color=day?"#ffd36b":"#b9c2ff";
+      r.d.innerHTML=p.wd+", "+MSHORT[p.m-1]+" "+p.d+offs(p,base)+(hol.length?' · <span class="hol">'+hol[0].n+'</span>':'');
     });
   }
-  // calendar + upcoming
+  // ---------- weather (Open-Meteo, every 20 min) ----------
+  function wxIcon(code,day){
+    if(code===0) return day?"☀️":"🌙";
+    if(code<=2) return day?"🌤️":"☁️";
+    if(code===3) return "☁️";
+    if(code===45||code===48) return "🌫️";
+    if(code>=51&&code<=57) return "🌦️";
+    if((code>=61&&code<=67)||(code>=80&&code<=82)) return "🌧️";
+    if((code>=71&&code<=77)||code===85||code===86) return "❄️";
+    if(code>=95) return "⛈️";
+    return "🌡️";
+  }
+  function showWx(arr){ (arr||[]).forEach(function(w,i){ var r=refs[i]; if(!r||!w||!w.current) return;
+      r.wx.innerHTML=wxIcon(w.current.weather_code,w.current.is_day)+' <small>'+Math.round(w.current.temperature_2m)+'°C</small>'; }); }
+  var wxAt=0;
+  function updateWx(){
+    var now=Date.now(); if(now-wxAt<20*60*1000) return; wxAt=now;
+    try{ showWx(JSON.parse(A.getPref("wx")||"null")); }catch(e){}
+    setTimeout(function(){
+      var u="https://api.open-meteo.com/v1/forecast?latitude="+CITIES.map(function(c){return c.lat;}).join(",")+"&longitude="+CITIES.map(function(c){return c.lon;}).join(",")+"&current=temperature_2m,weather_code,is_day&timezone=auto";
+      var body=""; try{ body=A.httpGet?A.httpGet(u):""; }catch(e){}
+      var d=null; try{ d=body?JSON.parse(body):null; }catch(e){}
+      if(d&&!Array.isArray(d)) d=[d];
+      if(d){ var slim=d.map(function(x){return {current:x.current};}); try{A.setPref("wx",JSON.stringify(slim));}catch(e){} showWx(slim); }
+      else wxAt=now-20*60*1000+5*60*1000;   // retry in 5 min
+    },80);
+  }
+
+  // ---------- calendar + upcoming ----------
   var lastK="";
   function renderSide(now){
     var p=parts(CITIES[0].tz,now), tk=key(p.y,p.m,p.d); if(tk===lastK) return; lastK=tk;
@@ -222,37 +413,162 @@ window.PHOTOS=["s01.jpg", "s02.jpg", "s03.jpg", "s04.jpg", "s05.jpg", "s06.jpg",
     var first=dowOf(p.y,p.m,1),dim=new Date(Date.UTC(p.y,p.m,0)).getUTCDate(),cells=Math.ceil((first+dim)/7)*7;
     for(var i=0;i<cells;i++){var dt=addDays(p.y,p.m,1,i-first),k=key(dt[0],dt[1],dt[2]),it=itemsFor(k),w=i%7,cs=[];
       it.forEach(function(x){x.cs.forEach(function(c){if(cs.indexOf(c)<0)cs.push(c);});});
-      h+='<div class="c'+(dt[1]!==p.m?" out":"")+(w===0||w===6?" wk":"")+(it.length?" hol":"")+(k===tk?" today":"")+'">'+dt[2]+
+      if(SCH[k]) cs.push("sc");
+      h+='<div class="c'+(dt[1]!==p.m?" out":"")+(w===0||w===6?" wk":"")+(cs.length?" hol":"")+(k===tk?" today":"")+'">'+dt[2]+
          (cs.length?'<span class="ds">'+cs.map(function(c){return '<i class="'+c+'"></i>';}).join("")+'</span>':'')+'</div>';}
     document.getElementById("cal").innerHTML=h;
-    var u="",n=0,max=6;
+    var u="",n=0,max=3;
     for(var j=0;j<400&&n<max;j++){var d=addDays(p.y,p.m,p.d,j);ensure(d[0]);
       itemsFor(key(d[0],d[1],d[2])).forEach(function(x){ if(n>=max) return; n++;
         var when=j===0?"Today":(j===1?"Tomorrow":j+" days");
-        u+='<li class="'+(j===0?"now":"")+'"><div class="d"><div class="mo">'+MSHORT[d[1]-1]+'</div><div class="dd">'+d[2]+'</div></div><div class="nm">'+
+        u+='<li class="'+(j===0?"now":"")+'"><div class="dd"><div class="mo">'+MSHORT[d[1]-1]+'</div><div class="n">'+d[2]+'</div></div><div class="nm">'+
            x.cs.map(function(c){return '<i class="dot '+c+'"></i>';}).join("")+x.n+(x.t?"*":"")+'</div><div class="when">'+when+'</div></li>'; });}
     document.getElementById("up").innerHTML=u;
-    if(tk>INDIA_LAST) document.getElementById("note").textContent="India holiday list needs updating for "+p.y;
+    if(tk>INDIA_LAST) document.getElementById("note").style.display="block", document.getElementById("note").textContent="India holiday list needs updating for "+p.y;
   }
-  // photo slideshow
-  var photos=(window.PHOTOS||[]).slice(), A=document.getElementById("bgA"), B=document.getElementById("bgB"), front=A, idx=-1, z=1;
-  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}}
-  shuffle(photos);
+
+  // ---------- photo rotation (every 60 s) ----------
+  var photos=(window.PHOTOS||[]).slice(), BA=document.getElementById("bgA"), BB=document.getElementById("bgB"), front=BA, idx=-1, z=1;
+  for(var s=photos.length-1;s>0;s--){var r=Math.floor(Math.random()*(s+1)),t=photos[s];photos[s]=photos[r];photos[r]=t;}
   function nextPhoto(){
     if(!photos.length) return; idx=(idx+1)%photos.length; var src=photos[idx], img=new Image();
-    img.onload=function(){var back=front===A?B:A, old=front; z+=1; back.style.zIndex=z;
+    img.onload=function(){var back=front===BA?BB:BA, old=front; z+=1; back.style.zIndex=z;
       back.style.backgroundImage='url("'+src+'")'; back.className="bg"; void back.offsetWidth; back.className="bg on";
-      setTimeout(function(){old.className="bg";},2700); front=back;};
-    img.onerror=function(){setTimeout(nextPhoto,500);};
+      setTimeout(function(){old.className="bg";},2200); front=back;};
     img.src=src;
   }
-  if(photos.length){ nextPhoto(); setInterval(nextPhoto, 25000); }
+  if(photos.length){ nextPhoto(); setInterval(nextPhoto,60000); }
 
+  // ---------- apps ----------
+  var apps=[], byPkg={}, favs=[];
+  var DEFAULT_FAVS=[/netflix/i,/prime video/i,/^youtube$/i,/spotify/i];
+  function loadApps(){
+    try{ apps=JSON.parse(A.getApps())||[]; }catch(e){ apps=[]; }
+    apps.sort(function(a,b){return a.label.localeCompare(b.label);});
+    byPkg={}; apps.forEach(function(a){byPkg[a.pkg]=a;});
+    var saved=""; try{saved=A.getPref("favs");}catch(e){}
+    if(saved){ favs=JSON.parse(saved).filter(function(p){return byPkg[p];}); }
+    else { favs=[]; DEFAULT_FAVS.forEach(function(re){ for(var i=0;i<apps.length;i++){ if(re.test(apps[i].label)&&favs.indexOf(apps[i].pkg)<0){favs.push(apps[i].pkg);break;} } }); saveFavs(); }
+  }
+  function saveFavs(){ try{A.setPref("favs",JSON.stringify(favs));}catch(e){} }
+  function art(el,pkg){
+    var a=byPkg[pkg]; if(!a) return;
+    if(a.icon===undefined){ try{a.icon=A.getIcon(pkg)||"";}catch(e){a.icon="";} }
+    if(a.icon){ el.className="art "+(a.icon[0]==="B"?"banner":"icon"); el.style.backgroundImage='url("'+a.icon.slice(1)+'")'; el.textContent=""; }
+    else { el.className="art"; el.textContent=a.label.slice(0,1); }
+  }
+  function tileHTML(label){ return '<div class="art"></div><div class="lbl">'+label+'</div>'; }
+
+  var isFire=false; try{ isFire=!!(A.isFireTV&&A.isFireTV()); }catch(e){}
+  var toastT=0;
+  function showToast(html){ var t=document.getElementById("toast"); t.innerHTML=html; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove("on");},7000); }
+  var mode="dock", dockItems=[], dockIdx=0, gridIdx=0, editMode=false, drawerFocus="grid", btnIdx=0;
+  function renderDock(){
+    var d=document.getElementById("dock"); d.innerHTML="";
+    dockItems=favs.map(function(p){return {type:"app",pkg:p,label:byPkg[p].label};});
+    dockItems.push({type:"all",label:"All apps"},{type:"settings",label:"Settings"});
+    dockItems.forEach(function(it,i){
+      var t=document.createElement("div"); t.className="tile"; t.innerHTML=tileHTML(it.label);
+      var a=t.querySelector(".art");
+      if(it.type==="app") art(a,it.pkg); else { a.textContent=it.type==="all"?"▦":"⚙"; }
+      d.appendChild(t);
+    });
+    if(dockIdx>=dockItems.length) dockIdx=dockItems.length-1;
+    focusDock();
+  }
+  function focusDock(){
+    var ts=document.querySelectorAll("#dock .tile");
+    for(var i=0;i<ts.length;i++) ts[i].classList.toggle("f",i===dockIdx&&mode==="dock");
+    var f=ts[dockIdx]; if(f){ var d=document.getElementById("dock"); var off=f.offsetLeft-d.clientWidth/2+f.clientWidth/2; d.scrollLeft=Math.max(0,off); }
+  }
+  function activateDock(){
+    var it=dockItems[dockIdx]; if(!it) return;
+    if(it.type==="app") A.launch(it.pkg); else if(it.type==="all") openDrawer();
+    else if(isFire) showToast('Fire TV settings: <b>double-press Home</b> on the remote,<br>then open <b>⚙ Settings</b>. Press Home once to come back here.');
+    else A.openSettings();
+  }
+  // drawer
+  var COLS=6;
+  function openDrawer(){ mode="drawer"; editMode=false; drawerFocus="grid"; gridIdx=0; renderGrid(); document.getElementById("drawer").classList.add("open"); focusDock(); }
+  function closeDrawer(){ mode="dock"; document.getElementById("drawer").classList.remove("open"); renderDock(); }
+  function renderGrid(){
+    var g=document.getElementById("grid"); g.innerHTML="";
+    apps.forEach(function(a,i){
+      var t=document.createElement("div"); t.className="tile"; t.innerHTML=tileHTML(a.label)+(favs.indexOf(a.pkg)>=0?'<span class="star">★</span>':'');
+      g.appendChild(t);
+    });
+    focusGrid();
+  }
+  function focusGrid(){
+    var ts=document.querySelectorAll("#grid .tile");
+    var rows=Math.max(1,Math.floor(document.getElementById("grid").clientHeight/ (ts[0]?ts[0].offsetHeight+document.getElementById("grid").offsetWidth*0.022:1)));
+    for(var i=0;i<ts.length;i++){
+      ts[i].classList.toggle("f",drawerFocus==="grid"&&i===gridIdx);
+      var art=ts[i].querySelector(".art"); if(!art.dataset.done && Math.abs(i-gridIdx)<COLS*4){ art.dataset.done=1; artFor(art,apps[i].pkg); }
+    }
+    // scroll window: show rows around the focused one
+    var row=Math.floor(gridIdx/COLS), g=document.getElementById("grid"), first=ts[0];
+    if(first){ var rh=first.offsetHeight+g.offsetWidth*0.022; g.scrollTop=Math.max(0,(row-1)*rh); }
+    document.getElementById("bEdit").classList.toggle("f",drawerFocus==="btn"&&btnIdx===0);
+    document.getElementById("bDone").classList.toggle("f",drawerFocus==="btn"&&btnIdx===1);
+    document.getElementById("bEdit").classList.toggle("on",editMode);
+  }
+  function artFor(el,pkg){ art(el,pkg); }
+  function toggleFav(pkg){
+    var i=favs.indexOf(pkg); if(i>=0) favs.splice(i,1); else favs.push(pkg); saveFavs();
+    var t=document.querySelectorAll("#grid .tile")[gridIdx]; if(t){ var st=t.querySelector(".star"); if(i>=0){ if(st) st.remove(); } else { t.insertAdjacentHTML("beforeend",'<span class="star">★</span>'); } }
+  }
+  // keys
+  var guardUntil=0;
+  document.addEventListener("keydown",function(e){
+    var k=e.key; var code=e.keyCode;
+    var isOK=(k==="Enter"||code===13||code===23||k===" ");
+    if(isOK && (e.repeat || Date.now()<guardUntil)){ e.preventDefault(); return; }   // no accidental launches
+    var L=k==="ArrowLeft"||code===21, R=k==="ArrowRight"||code===22, U=k==="ArrowUp"||code===19, D=k==="ArrowDown"||code===20,
+        OK=k==="Enter"||code===13||code===23||k===" ";
+    if(mode==="dock"){
+      if(L){ dockIdx=Math.max(0,dockIdx-1); focusDock(); }
+      else if(R){ dockIdx=Math.min(dockItems.length-1,dockIdx+1); focusDock(); }
+      else if(OK){ activateDock(); }
+      else return;
+      e.preventDefault(); return;
+    }
+    if(mode==="drawer"){
+      if(drawerFocus==="btn"){
+        if(L) btnIdx=0; else if(R) btnIdx=1; else if(D){ drawerFocus="grid"; }
+        else if(OK){ if(btnIdx===0){ editMode=!editMode; } else { closeDrawer(); e.preventDefault(); return; } }
+        else return;
+        focusGrid(); e.preventDefault(); return;
+      }
+      var n=apps.length;
+      if(L) gridIdx=Math.max(0,gridIdx-1);
+      else if(R) gridIdx=Math.min(n-1,gridIdx+1);
+      else if(U){ if(gridIdx<COLS){ drawerFocus="btn"; btnIdx=0; } else gridIdx-=COLS; }
+      else if(D) gridIdx=Math.min(n-1,gridIdx+COLS);
+      else if(OK){ var a=apps[gridIdx]; if(a){ if(editMode) toggleFav(a.pkg); else A.launch(a.pkg); } }
+      else return;
+      focusGrid(); e.preventDefault();
+    }
+  });
+  window.onBack=function(){ if(mode==="drawer") closeDrawer(); };
+  window.onMenuKey=function(){
+    if(mode==="dock"){ openDrawer(); }
+    else if(drawerFocus==="grid"){ var a=apps[gridIdx]; if(a){ toggleFav(a.pkg); } }
+  };
+  window.onHomePressed=function(){ if(mode==="drawer") closeDrawer(); guardUntil=Date.now()+1200; focusDock(); };
+  window.onLauncherResume=function(){ guardUntil=Date.now()+1200; loadApps(); if(mode==="dock") renderDock(); else renderGrid(); };
+
+  // ---------- start ----------
+  if(SS){
+    ["dock","hint","drawer","lunch","toast"].forEach(function(id){var e=document.getElementById(id); if(e) e.style.display="none";});
+    var dr=[[0,0],[6,4],[-5,6],[4,-5],[-6,-3]],di=0;
+    setInterval(function(){di=(di+1)%dr.length;document.getElementById("stage").style.transform="translate("+dr[di][0]+"px,"+dr[di][1]+"px)";},120000);
+  } else { loadApps(); renderDock(); }
   var skew=0; try{var q=/[?&]at=([^&]+)/.exec(location.search); if(q) skew=new Date(decodeURIComponent(q[1])).getTime()-Date.now();}catch(e){}
-  function loop(){var now=new Date(Date.now()+skew); tickClocks(now); renderSide(now);}
+  function loop(){var now=new Date(Date.now()+skew); tickClocks(now); renderSide(now); renderSchool(now); if(!SS) updateLunch(parts(CITIES[0].tz,now)); updateWx();}
+  setTimeout(function(){var h=document.getElementById('hint'); if(h) h.style.opacity=0;},10000);
   loop(); setTimeout(function(){loop(); setInterval(loop,1000);},1000-(Date.now()%1000));
-  var drift=[[0,0],[6,4],[-5,6],[4,-5],[-6,-3]],di=0;
-  setInterval(function(){di=(di+1)%drift.length;document.getElementById("stage").style.transform="translate("+drift[di][0]+"px,"+drift[di][1]+"px)";},120000);
+  if(/[?&]drawer/.test(location.search)) openDrawer();
 })();
 </script>
 </body>
